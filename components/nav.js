@@ -16,7 +16,7 @@ import {
 import { Link } from '@chakra-ui/next-js';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
-const Links = [{ label: 'Home', href: '/' }, { label: 'Features', href: '/features' }, { label: 'Pricing', href: '/pricing'}];
+const Links = [{ label: 'Home', href: '/' }, { label: 'Features', href: '/features' }, { label: 'Pricing federated', href: '/pricing'}, { label: 'Pricing local', href: '/pricing2'}];
 
 const NavLink = ({ children, href }) => (
   <Link
