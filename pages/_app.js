@@ -1,29 +1,19 @@
-import { CacheProvider } from '@chakra-ui/next-js'
-import { ChakraProvider, cookieStorageManagerSSR } from '@chakra-ui/react'
+import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 
 import Nav from '@/components/nav'
 
-const theme = {
+const theme = extendTheme({
   config: {
-    initialColorMode: 'dark',
+    initialColorMode: 'light',
+    useSystemColorMode: false,
   }
-}
-export default function App({ Component, pageProps, cookies }) {
-  const colorModeManager = cookieStorageManagerSSR(cookies);
+})
 
+export default function App({ Component, pageProps }) {
   return (
-    <CacheProvider>
-      <ChakraProvider colorModeManager={colorModeManager} theme={theme}>
-        <Nav />
-        <Component {...pageProps} />
-      </ChakraProvider>
-    </CacheProvider>
+    <ChakraProvider theme={theme}>
+      <Nav />
+      <Component {...pageProps} />
+    </ChakraProvider>
   )
 }
-
-App.getInitialProps = (data) => {
-  const { ctx } = data;
-  return {
-    cookies: ctx?.req?.headers?.cookie || '',
-  };
-};
