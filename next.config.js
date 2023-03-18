@@ -42,6 +42,11 @@ const nextConfig = {
             requiredVersion: false,
             singleton: true,
           },
+          '@chakra-ui/react': {
+            eager: true,
+            requiredVersion: false,
+            singleton: true,
+          },
         },
       })
     );
