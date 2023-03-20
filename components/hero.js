@@ -13,7 +13,7 @@ import {
 
 const caveat = Caveat({
   subsets: ['latin'],
-  weight: '700',
+  weight: ['700'],
 });
 
 const Arrow = createIcon({
@@ -86,7 +86,7 @@ export default function Hero() {
             <Text
               className={caveat.className}
               fontSize={'lg'}
-              fontFamily={'Caveat'}
+              fontFamily={caveat.style.fontFamily}
               position={'absolute'}
               right={'-125px'}
               top={'-15px'}
