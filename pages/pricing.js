@@ -1,29 +1,15 @@
-import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
+import PricingPage from 'pricing/PricingPage';
 
-const PricingPage = dynamic(
-  () => {
-    return import('pricing/PricingPage');
-  },
-  { ssr: true }
-);
+const Pricing = PricingPage;
 
-export async function getServerSideProps(context) {
-  const page = await import('pricing/PricingPage');
-
-  if (page.getServerSideProps) {
-    return page.getServerSideProps(context);
+export const getServerSideProps = async (ctx) => {
+  if (PricingPage.getServerSideProps) {
+    return PricingPage.getServerSideProps(ctx);
   }
 
   return {
     props: {},
-  };
-}
-
-export function Pricing() {
-  return (
-    <PricingPage />
-  );
+  }
 }
 
 export default Pricing;
