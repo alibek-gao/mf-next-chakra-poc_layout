@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import ThreeTierPricing from '@/components/pricing'
 
-export function Pricing() {
+export function Pricing({ name }) {
   return (
     <>
       <Head>
@@ -12,14 +12,20 @@ export function Pricing() {
       </Head>
       <main>
         <ThreeTierPricing />
+        {JSON.stringify({ name })}
       </main>
     </>
   )
 }
 
 export async function getServerSideProps({ query }) {
+  const res = await fetch('https://pokeapi.co/api/v2/pokemon/' + (Date.now()%100));
+  const pokemon = await res.json();
+
   return {
-    props: {},
+    props: {
+      name: pokemon.name,
+    },
   };
 }
 
