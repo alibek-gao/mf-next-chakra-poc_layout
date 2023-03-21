@@ -4,6 +4,8 @@ const PRICING_APP_URL =
   process.env.NEXT_PUBLIC_PRICING_APP_URL || 'http://localhost:3001';
 
 const remotes = (isServer) => {
+  console.log('isServer', isServer);
+  console.log('PRICING_APP_URL', PRICING_APP_URL);
   const location = isServer ? 'ssr' : 'chunks';
   return {
     pricing: `pricing@${PRICING_APP_URL}/_next/static/${location}/remoteEntry.js`,
