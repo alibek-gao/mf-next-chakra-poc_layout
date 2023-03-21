@@ -16,9 +16,3 @@ export default function Home() {
     </>
   )
 }
-
-export const getServerSideProps = async (ctx) => {
-  return {
-    props: {},
-  }
-}

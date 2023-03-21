@@ -18,9 +18,3 @@ export default function Features() {
     </>
   )
 }
-
-export const getServerSideProps = async (ctx) => {
-  return {
-    props: {},
-  }
-}
