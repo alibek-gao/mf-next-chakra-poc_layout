@@ -1,22 +1,35 @@
-import { revalidate } from '@module-federation/nextjs-mf/utils';
+import { revalidate, FlushedChunks, flushChunks }from '@module-federation/nextjs-mf/utils';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
-    const initialProps = await Document.getInitialProps(ctx);
-
-    // can be any lifecycle or implementation you want
-    ctx?.res?.on('finish', () => {
-      revalidate().then((shouldUpdate) => {
-        console.log('finished sending response', shouldUpdate);
+    if(process.env.NODE_ENV === "development" && !ctx.req.url.includes("_next")) {
+      await revalidate().then((shouldReload) =>{
+        if (shouldReload) {
+          ctx.res.writeHead(302, { Location: ctx.req.url });
+          ctx.res.end();
+        }
       });
-    });
+    } else {
+      ctx?.res?.on("finish", () => {
+        revalidate()
+      });
+    }
 
-    return initialProps;
+    const chunks = await flushChunks()
+
+    const initialProps = await Document.getInitialProps(ctx);
+    return {
+      ...initialProps,
+      chunks
+    };
   }
+
   render() {
     return (
       <Html>
-        <Head />
+        <Head>
+          <FlushedChunks chunks={this.props.chunks} />
+        </Head>
         <body>
         <Main />
         <NextScript />
