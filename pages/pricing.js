@@ -23,12 +23,16 @@ export function Pricing({ pricingProps, listProps }) {
 }
 
 export const getServerSideProps = async (ctx) => {
-  const pricing = await import('pricing/Pricing');
-  const list = await import('pricing/List');
+  const [pricing, list] = await Promise.all([
+    import('pricing/Pricing'),
+    import('pricing/List'),
+  ]);
 
   if (pricing.getServerSideProps && list.getServerSideProps) {
-    const pricingProps = await pricing.getServerSideProps(ctx)
-    const listProps = await list.getServerSideProps(ctx)
+    const [pricingProps, listProps] = await Promise.all([
+      pricing.getServerSideProps(ctx),
+      list.getServerSideProps(ctx),
+    ]);
     return {
       props: {
         pricingProps: pricingProps.props,
