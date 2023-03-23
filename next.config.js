@@ -29,9 +29,9 @@ const nextConfig = {
         name: 'layout',
         filename: 'static/chunks/remoteEntry.js',
         remotes: remotes(isServer),
-        extraOptions: {
-          automaticAsyncBoundary: true,
-        },
+        // extraOptions: {
+        //   automaticAsyncBoundary: true,
+        // },
         exposes: {},
         shared: {
           '@emotion/': {

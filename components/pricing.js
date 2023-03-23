@@ -24,7 +24,7 @@ function PriceWrapper({ children }) {
   );
 }
 
-export default function ThreeTierPricing() {
+export default function ThreeTierPricing({ test }) {
   return (
     <Box py={12}>
       <VStack spacing={2} textAlign="center">
@@ -33,7 +33,7 @@ export default function ThreeTierPricing() {
         </Heading>
         <Text fontSize="lg" color={'gray.500'}>
           Start with 14-day free trial. No credit card needed. Cancel at
-          anytime.
+          anytime. {JSON.stringify({ test: typeof test, value: test })}
         </Text>
       </VStack>
       <Stack

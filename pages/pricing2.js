@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import ThreeTierPricing from '@/components/pricing'
 
-export function Pricing() {
+export function Pricing({ test }) {
   return (
     <>
       <Head>
@@ -11,15 +11,19 @@ export function Pricing() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <ThreeTierPricing />
+        <ThreeTierPricing test={test} />
+
       </main>
     </>
   )
 }
 
 export async function getServerSideProps({ query }) {
+  const test = Date.now() % 10000
   return {
-    props: {},
+    props: {
+      test,
+    },
   };
 }
 
