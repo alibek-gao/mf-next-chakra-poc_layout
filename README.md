@@ -1,3 +1,5 @@
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://vshymanskyy.github.io/StandWithUkraine/)
+
 # Module Federation with Next.js and Chakra UI
 
 This is POC for Module Federation with Next.js and Chakra UI.
