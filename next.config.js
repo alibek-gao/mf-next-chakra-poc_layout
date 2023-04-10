@@ -1,14 +1,14 @@
 const { NextFederationPlugin } = require('@module-federation/nextjs-mf');
 
-const PRICING_APP_URL =
-  process.env.NEXT_PUBLIC_PRICING_APP_URL || 'http://localhost:3001';
+const CONTENT_APP_URL =
+  process.env.NEXT_PUBLIC_CONTENT_APP_URL || 'http://localhost:3001';
 const SHOP_APP_URL =
   process.env.NEXT_PUBLIC_SHOP_APP_URL || 'http://localhost:3002';
 
 const remotes = (isServer) => {
   const location = isServer ? 'ssr' : 'chunks';
   return {
-    pricing: `pricing@${PRICING_APP_URL}/_next/static/${location}/remoteEntry.js`,
+    content: `content@${CONTENT_APP_URL}/_next/static/${location}/remoteEntry.js`,
     shop: `shop@${SHOP_APP_URL}/_next/static/${location}/remoteEntry.js`,
   };
 }

@@ -1,14 +1,14 @@
 import dynamic from 'next/dynamic';
 
 const PricingComponent = dynamic(
-  () => import('pricing/Pricing').then((mod) => mod.Pricing),
+  () => import('content/Pricing').then((mod) => mod.Pricing),
   {
     ssr: true,
   }
 );
 
 const ListComponent = dynamic(
-  () => import('pricing/List').then((mod) => mod.List),
+  () => import('content/List').then((mod) => mod.List),
   {
     ssr: true,
   }
@@ -24,8 +24,8 @@ export function Pricing({ pricingProps, listProps }) {
 
 export const getServerSideProps = async (ctx) => {
   const [pricing, list] = await Promise.all([
-    import('pricing/Pricing'),
-    import('pricing/List'),
+    import('content/Pricing'),
+    import('content/List'),
   ]);
 
   if (pricing.getServerSideProps && list.getServerSideProps) {

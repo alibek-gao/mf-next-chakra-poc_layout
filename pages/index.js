@@ -3,7 +3,7 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic';
 
 const Hero = dynamic(
-  () => import('pricing/Hero').then((mod) => mod.Hero),
+  () => import('content/Hero').then((mod) => mod.Hero),
   {
     ssr: true,
   }
@@ -43,7 +43,7 @@ export function Home({ heroProps, featuredProps }) {
 
 export const getServerSideProps = async (ctx) => {
   const [hero, featured] = await Promise.all([
-    import('pricing/Hero'),
+    import('content/Hero'),
     import('shop/Featured'),
   ]);
 
