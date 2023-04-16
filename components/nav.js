@@ -21,6 +21,7 @@ const Links = [
   { label: 'Features', href: '/features' },
   { label: 'Pricing federated', href: '/pricing'},
   { label: 'Pricing local', href: '/pricing2'},
+  { label: 'Dynamic route', href: '/p/123123'},
 ];
 
 const NavLink = ({ children, href }) => (
