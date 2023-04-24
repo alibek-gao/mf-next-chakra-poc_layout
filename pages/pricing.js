@@ -1,12 +1,12 @@
 import dynamic from 'next/dynamic';
 
 const PricingComponent = dynamic(
-  () => import('content/Pricing'),
+  () => import('content/Pricing').then((mod) => mod.Pricing),
   {
     ssr: true,
   }
 );
-export function Pricing({ ...props }) {
+export function Pricing(props) {
   return <PricingComponent {...props} />
 }
 
