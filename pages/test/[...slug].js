@@ -43,7 +43,11 @@ export const getServerSideProps = async (ctx) => {
   if (typeof window === 'undefined') {
     remotePagesMap.set(
       path,
-      dynamic(() => Promise.resolve(remote.default))
+      dynamic(() => Promise.resolve(remote.default), {
+        ssr: true,
+        // TODO: how to prevent hydration before Component is loaded?
+        loading: () => null,
+      })
     );
 
     await Loadable.preloadAll();
