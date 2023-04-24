@@ -6,8 +6,6 @@ export const Message = () => {
       display='flex'
       justifyContent='center'
       alignItems='center'
-      position='sticky'
-      zIndex='10'
       p='2'
       w='100%'
       bg='gray.900'
