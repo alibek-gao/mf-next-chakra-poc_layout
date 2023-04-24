@@ -6,6 +6,9 @@ const pageMap = new Map();
 
 function DynamicComponent({ remote, path, props }) {
   const [Component] = useState(() => {
+    if (typeof window === 'undefined') {
+      return pageMap.get(path);
+    }
     return dynamic(() => {
       return injectScript(remote)
         .then(container => container.get(`.${path}`))
@@ -21,13 +24,6 @@ function DynamicComponent({ remote, path, props }) {
 }
 
 export function Page({ path, props }) {
-  if (typeof window === 'undefined') {
-    const Component = pageMap.get(path).default;
-    if (Component) {
-      return <Component {...props}/>;
-    }
-    return null;
-  }
   return <DynamicComponent remote="shop" path={path} props={props} />;
 }
 
@@ -40,7 +36,7 @@ export const getServerSideProps = async (ctx) => {
 
   const props = (await remote.getServerSideProps(ctx)).props;
 
-  pageMap.set(ctx.resolvedUrl, remote);
+  pageMap.set(ctx.resolvedUrl, remote.default);
 
   return { props: { path, props } }
 }
