@@ -1,13 +1,16 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { injectScript } from '@module-federation/utilities'
 import dynamic from 'next/dynamic'
+import Loadable from 'next/dist/shared/lib/loadable'
 
-const pageMap = new Map();
+// TODO: replace with a LRU cache or something similar
+const remotePagesMap = new Map();
 
 function DynamicComponent({ remote, path, props }) {
-  const [Component] = useState(() => {
+  const Component = useMemo(() => {
     if (typeof window === 'undefined') {
-      return pageMap.get(path);
+      // if wrap this in a dynamic(), it doesn't render on the server
+      return remotePagesMap.get(path);
     }
     return dynamic(() => {
       return injectScript(remote)
@@ -15,10 +18,10 @@ function DynamicComponent({ remote, path, props }) {
         .then(factory => factory())
     }, {
       ssr: true,
-      // how to prevent hydration before Component is loaded?
+      // TODO: how to prevent hydration before Component is loaded?
       loading: () => null,
     })
-  });
+  }, [remote, path]);
 
   return <Component {...props} />;
 }
@@ -28,15 +31,25 @@ export function Page({ path, props }) {
 }
 
 export const getServerSideProps = async (ctx) => {
-  const path = ctx.resolvedUrl.split('?')[0]
+  const path = ctx.resolvedUrl.split('?')[0];
 
   const container = await injectScript('shop');
   const remote = await container.get(`.${path}`)
     .then((factory) => factory());
 
-  const props = (await remote.getServerSideProps(ctx)).props;
+  // remotePagesMap.set(path, remote.default);
 
-  pageMap.set(ctx.resolvedUrl, remote.default);
+
+  if (typeof window === 'undefined') {
+    remotePagesMap.set(
+      path,
+      dynamic(() => Promise.resolve(remote.default))
+    );
+
+    await Loadable.preloadAll();
+  }
+
+  const props = (await remote.getServerSideProps(ctx)).props;
 
   return { props: { path, props } }
 }
