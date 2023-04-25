@@ -5,17 +5,17 @@ import { useRouter } from 'next/router'
 // TODO: replace with a LRU cache or something similar
 const remotePagesMap = new Map();
 
-function DynamicComponent({ props, slug }) {
+function DynamicComponent({ props, path }) {
   const Component = useMemo(() => {
     if (typeof window === 'undefined') {
-      return remotePagesMap.get(`/test/${slug}`);
+      return remotePagesMap.get(path);
     }
     return lazy(() => {
       return injectScript('shop')
-        .then(container => container.get(`./test/${slug}`))
+        .then(container => container.get(`.${path}`))
         .then(factory => factory())
     })
-  }, [slug]);
+  }, [path]);
 
   return (
     <Suspense fallback={null}>
@@ -26,22 +26,21 @@ function DynamicComponent({ props, slug }) {
 
 export function Page(props) {
   const router = useRouter();
-  const { slug } = router.query
-  const slugString = slug[0]
+  const path = router.asPath.split('?')[0]
 
   // this is a hack to prevent the page from infinitely re-rendering
-  const [oldSlug, setOldSlug] = useState(slugString)
+  const [oldPath, setOldPath] = useState(path)
 
   useEffect(() => {
-    setOldSlug(slugString)
-  }, [slugString])
+    setOldPath(path)
+  }, [path])
 
-  if (slugString !== oldSlug) {
+  if (path !== oldPath) {
     return null
   }
   // end hack
 
-  return <DynamicComponent props={props} slug={slugString} />;
+  return <DynamicComponent props={props} path={path} />;
 }
 
 export const getServerSideProps = async (ctx) => {
