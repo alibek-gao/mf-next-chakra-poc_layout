@@ -5,16 +5,17 @@ import { useRouter } from 'next/router'
 // TODO: replace with a LRU cache or something similar
 const remotePagesMap = new Map();
 
+const getRemoteModule = async (remoteName, path) => {
+  const container = await injectScript(remoteName);
+  return await container.get(`.${path}`).then((factory) => factory());
+}
+
 function DynamicComponent({ props, path }) {
   const Component = useMemo(() => {
     if (typeof window === 'undefined') {
       return remotePagesMap.get(path);
     }
-    return lazy(() => {
-      return injectScript('shop')
-        .then(container => container.get(`.${path}`))
-        .then(factory => factory())
-    })
+    return lazy(() => getRemoteModule('shop', path))
   }, [path]);
 
   return (
@@ -28,16 +29,13 @@ export function Page(props) {
   const router = useRouter();
   const path = router.asPath.split('?')[0]
 
-  // this is a hack to prevent the page from infinitely re-rendering
+  // this is a hack to prevent infinity re-rendering
+  // when navigating between pages with the same path
+  // and different slug
+  // TODO: find a better way to do this
   const [oldPath, setOldPath] = useState(path)
-
-  useEffect(() => {
-    setOldPath(path)
-  }, [path])
-
-  if (path !== oldPath) {
-    return null
-  }
+  useEffect(() => { setOldPath(path) }, [path])
+  if (path !== oldPath) { return null }
   // end hack
 
   return <DynamicComponent props={props} path={path} />;
@@ -46,21 +44,20 @@ export function Page(props) {
 export const getServerSideProps = async (ctx) => {
   const path = ctx.resolvedUrl.split('?')[0];
 
-  const container = await injectScript('shop');
-  const remote = await container.get(`.${path}`)
-    .then((factory) => factory());
+  try {
+    const remoteModule = await getRemoteModule('shop', path)
 
+    if (typeof window === 'undefined') {
+      remotePagesMap.set(path, remoteModule.default);
+    }
 
-  if (typeof window === 'undefined') {
-    remotePagesMap.set(
-      path,
-      remote.default
-    );
+    return await remoteModule.getServerSideProps(ctx)
+  } catch (e) {
+    console.error(e);
+    return {
+      notFound: true,
+    };
   }
-
-  const props = (await remote.getServerSideProps(ctx)).props;
-
-  return { props }
 }
 
 export default Page;

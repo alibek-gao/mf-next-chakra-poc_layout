@@ -15,6 +15,7 @@ const Links = [
   { label: 'Pricing federated', href: '/pricing'},
   { label: 'test one', href: '/test/one'},
   { label: 'test two', href: '/test/two'},
+  { label: 'test not found', href: '/test/not-found'},
 ];
 
 const NavLink = ({ children, href }) => (
