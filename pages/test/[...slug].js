@@ -1,33 +1,47 @@
-import { useMemo } from 'react'
+import { useMemo, lazy, Suspense, useState, useEffect } from 'react'
 import { injectScript } from '@module-federation/utilities'
-import dynamic from 'next/dynamic'
-import Loadable from 'next/dist/shared/lib/loadable'
+import { useRouter } from 'next/router'
 
 // TODO: replace with a LRU cache or something similar
 const remotePagesMap = new Map();
 
-function DynamicComponent({ remote, path, props }) {
+function DynamicComponent({ props, slug }) {
   const Component = useMemo(() => {
     if (typeof window === 'undefined') {
-      // if wrap this in a dynamic(), it doesn't render on the server
-      return remotePagesMap.get(path);
+      return remotePagesMap.get(`/test/${slug}`);
     }
-    return dynamic(() => {
-      return injectScript(remote)
-        .then(container => container.get(`.${path}`))
+    return lazy(() => {
+      return injectScript('shop')
+        .then(container => container.get(`./test/${slug}`))
         .then(factory => factory())
-    }, {
-      ssr: true,
-      // TODO: how to prevent hydration before Component is loaded?
-      loading: () => null,
     })
-  }, [remote, path]);
+  }, [slug]);
 
-  return <Component {...props} />;
+  return (
+    <Suspense fallback={null}>
+      <Component {...props} />
+    </Suspense>
+  );
 }
 
-export function Page({ path, props }) {
-  return <DynamicComponent remote="shop" path={path} props={props} />;
+export function Page(props) {
+  const router = useRouter();
+  const { slug } = router.query
+  const slugString = slug[0]
+
+  // this is a hack to prevent the page from infinitely re-rendering
+  const [oldSlug, setOldSlug] = useState(slugString)
+
+  useEffect(() => {
+    setOldSlug(slugString)
+  }, [slugString])
+
+  if (slugString !== oldSlug) {
+    return null
+  }
+  // end hack
+
+  return <DynamicComponent props={props} slug={slugString} />;
 }
 
 export const getServerSideProps = async (ctx) => {
@@ -37,25 +51,17 @@ export const getServerSideProps = async (ctx) => {
   const remote = await container.get(`.${path}`)
     .then((factory) => factory());
 
-  // remotePagesMap.set(path, remote.default);
-
 
   if (typeof window === 'undefined') {
     remotePagesMap.set(
       path,
-      dynamic(() => Promise.resolve(remote.default), {
-        ssr: true,
-        // TODO: how to prevent hydration before Component is loaded?
-        loading: () => null,
-      })
+      remote.default
     );
-
-    await Loadable.preloadAll();
   }
 
   const props = (await remote.getServerSideProps(ctx)).props;
 
-  return { props: { path, props } }
+  return { props }
 }
 
 export default Page;
