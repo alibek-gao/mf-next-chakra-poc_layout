@@ -1,10 +1,6 @@
 import { useMemo, lazy, Suspense, useState, useEffect } from 'react'
-import { injectScript } from '@module-federation/utilities'
+import { importDelegatedModule } from '@module-federation/utilities'
 import { useRouter } from 'next/router'
-
-// TODO: replace with a LRU cache
-// TODO: or remove value from map after use but need to handle concurrency (e.g. async-lock)
-const remotePagesMap = new Map();
 
 // assuming `path` is `/remoteName/moduleName`
 const getRemoteModule = async (path) => {
@@ -13,15 +9,12 @@ const getRemoteModule = async (path) => {
   const remoteName =  slashIndex > -1 ? trimmedPath.substring(0, slashIndex) : trimmedPath;
   const moduleName = slashIndex > -1 ? trimmedPath.substring(slashIndex) : '/index';
 
-  const container = await injectScript(remoteName);
+  const container = await importDelegatedModule(remoteName);
   return await container.get(`.${moduleName}`).then((factory) => factory());
 }
 
 function DynamicComponent({ props, path }) {
   const Component = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return remotePagesMap.get(path);
-    }
     return lazy(() => getRemoteModule(path))
   }, [path]);
 
@@ -50,15 +43,9 @@ export function Page(props) {
 
 export const getServerSideProps = async (ctx) => {
   const path = ctx.resolvedUrl.split('?')[0];
-  const realPath = ctx.req.url.split('?')[0];
-  const isDirectPageRequest = path === realPath;
 
   try {
     const remoteModule = await getRemoteModule(path)
-
-    if (isDirectPageRequest) {
-      remotePagesMap.set(path, remoteModule.default);
-    }
 
     if (typeof remoteModule.getServerSideProps === 'function') {
       return await remoteModule.getServerSideProps(ctx);
@@ -76,3 +63,11 @@ export const getServerSideProps = async (ctx) => {
 }
 
 export default Page;
+// import { createDynamicFederatedPage } from '@module-federation/nextjs-mf/utils'
+// import { importDelegatedModule } from '@module-federation/utilities'
+// const { Page, getServerSideProps } = createDynamicFederatedPage({
+//   getContainer: importDelegatedModule
+// })
+//
+// export { getServerSideProps }
+// export default Page;

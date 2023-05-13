@@ -16,7 +16,8 @@ const Links = [
   { label: 'test one', href: '/test/one'},
   { label: 'test two', href: '/test/two'},
   { label: 'test not found', href: '/test/not-found'},
-  { label: 'dynamic remote', href: '/shop/Featured'},
+  { label: 'dynamic remote 1', href: '/shop/Featured'},
+  { label: 'dynamic remote 2', href: '/content/Hero'},
 ];
 
 const NavLink = ({ children, href }) => (
